@@ -4,11 +4,14 @@ namespace _mode_7
 {
     public partial class FormMode7 : Form
     {
-        public Color[,] colors = new Color[512, 512];
-        int width = 512, height = 512;
+        public Color[,] colors = new Color[1024, 1024];
+        int width = 1024, height = 1024;
         int a = 8, b = 8, c = 0, d = 0; // params for x scale and y scale
-        int h = 0, v = 0; // params for start transform
+        int h = 0, v = 0;
         int xt = 0, yt = 0;
+        bool renderSlowly = true;
+        int slowX = 0;
+        int slowY = 0;
         public FormMode7()
         {
             InitializeComponent();
@@ -25,34 +28,115 @@ namespace _mode_7
         private void timerTick_Tick(object sender, EventArgs e)
         {
             // tick event
-            this.Refresh();
+            this.Invalidate();
         }
 
         private void FormMode7_Paint(object sender, PaintEventArgs e)
         {
-            SolidBrush brush = new SolidBrush(Color.FromArgb(0, 0, 0));
-            // paints the form
-            for (int y = 0; y < 256 / 4; y++)
+            SolidBrush brush = new SolidBrush(Color.White);
+            if (renderSlowly)
             {
-                for (int x = 0; x < 248 / 4; x++)
+                if (slowY >= 480)
                 {
-
-                    int x0 = xt + ((x - h) * a + (y - v) * c) + x;
-                    int y0 = yt + ((y - v) * b + (x - h) * d) + y;
+                    slowY = 0;
+                    slowX = 0;
+                }
+                if (slowX >= 640)
+                {
+                    slowX = 0;
+                    slowY += 1;
+                }
+                // renders set of horizontal scan lines
+                if (slowY > 0)
+                {
+                    for (int y = 0; y < slowY; y++)
+                    {
+                        for (int x = 0; x < 640 / 4.0; x++)
+                        {
+                            int x0 = xt + ((x - h) * a + (y - v) * c) + x;
+                            int y0 = yt + ((y - v) * b + (x - h) * d) + y;
+                            if (x0 < 0 || x0 > width - 1)
+                            {
+                                brush.Color = Color.FromArgb(200, 200, 200);
+                                e.Graphics.FillRectangle(brush, x * 4, y * 4, 4, 4);
+                            }
+                            else if (y0 < 0 || y0 > height - 1)
+                            {
+                                brush.Color = Color.FromArgb(200, 200, 200);
+                                e.Graphics.FillRectangle(brush, x * 4, y * 4, 4, 4);
+                            }
+                            else
+                            {
+                                brush.Color = colors[x0, y0];
+                                e.Graphics.FillRectangle(brush, x * 4, y * 4, 4, 4);
+                            }
+                            if (x > 512 / 4 || y > 424 / 4) // displays blackened border
+                            {
+                                brush.Color = Color.FromArgb(127, 0, 0, 0);
+                                e.Graphics.FillRectangle(brush, x * 4, y * 4, 4, 4);
+                            }
+                        }
+                    }
+                }
+                // renders final scan line
+                for (int x = 0; x < slowX / 4; x++)
+                {
+                    int x0 = xt + ((x - h) * a + (slowY - v) * c) + x;
+                    int y0 = yt + ((slowY - v) * b + (x - h) * d) + slowY;
                     if (x0 < 0 || x0 > width - 1)
                     {
                         brush.Color = Color.FromArgb(200, 200, 200);
-                        e.Graphics.FillRectangle(brush, x * 4, y * 4, 4, 4);
-                        continue;
+                        e.Graphics.FillRectangle(brush, x * 4, slowY * 4, 4, 4);
                     }
-                    if (y0 < 0 || y0 > height - 1)
+                    else if (y0 < 0 || y0 > height - 1)
                     {
                         brush.Color = Color.FromArgb(200, 200, 200);
-                        e.Graphics.FillRectangle(brush, x * 4, y * 4, 4, 4);
-                        continue;
+                        e.Graphics.FillRectangle(brush, x * 4, slowY * 4, 4, 4);
                     }
-                    brush.Color = colors[x0, y0];
-                    e.Graphics.FillRectangle(brush, x * 4, y * 4, 4, 4);
+                    else
+                    {
+                        brush.Color = colors[x0, y0];
+                        e.Graphics.FillRectangle(brush, x * 4, slowY * 4, 4, 4);
+                    }
+                    if (x > 512 / 4 || slowY > 424 / 4) // displays blackened border
+                    {
+                        brush.Color = Color.FromArgb(127, 0, 0, 0);
+                        e.Graphics.FillRectangle(brush, x * 4, slowY * 4, 4, 4);
+                    }
+                }
+                slowX += 4;
+            }
+            else
+            {
+                // paints the form quickly
+                e.Graphics.Clear(Color.White);
+                for (int y = 0; y < 480 / 4; y++)
+                {
+                    for (int x = 0; x < 640 / 4; x++)
+                    {
+                        int x0 = xt + ((x - h) * a + (y - v) * c) + x;
+                        int y0 = yt + ((y - v) * b + (x - h) * d) + y;
+                        if (x0 < 0 || x0 > width - 1)
+                        {
+                            brush.Color = Color.FromArgb(200, 200, 200);
+                            e.Graphics.FillRectangle(brush, x * 4, y * 4, 4, 4);
+                        }
+                        else if (y0 < 0 || y0 > height - 1)
+                        {
+                            brush.Color = Color.FromArgb(200, 200, 200);
+                            e.Graphics.FillRectangle(brush, x * 4, y * 4, 4, 4);
+                        }
+                        else
+                        {
+                            brush.Color = colors[x0, y0];
+                            e.Graphics.FillRectangle(brush, x * 4, y * 4, 4, 4);
+                        }
+                        if (x > 512 / 4 || y > 424 / 4) // displays blackened border
+                        {
+                            brush.Color = Color.FromArgb(127, 0, 0, 0);
+                            e.Graphics.FillRectangle(brush, x * 4, y * 4, 4, 4);
+                        }
+                    }
                 }
             }
         }
@@ -138,6 +222,13 @@ namespace _mode_7
                 return;
             }
             yt = int.Parse(text);
+        }
+
+        private void checkBoxRenderSlowly_CheckedChanged(object sender, EventArgs e)
+        {
+            slowX = 0;
+            slowY = 0;
+            renderSlowly = checkBoxRenderSlowly.Checked;
         }
     }
 }

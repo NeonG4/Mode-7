@@ -29,7 +29,7 @@
         private void InitializeComponent()
         {
             components = new System.ComponentModel.Container();
-            timerTick = new System.Windows.Forms.Timer(components);
+            timerTickScreen = new System.Windows.Forms.Timer(components);
             textBoxXStretch = new TextBox();
             textBoxXAxis = new TextBox();
             textBoxYAxis = new TextBox();
@@ -42,17 +42,22 @@
             labelShiftAfter = new Label();
             textBoxShiftY = new TextBox();
             textBoxShiftX = new TextBox();
+            groupBoxMode7Controls = new GroupBox();
+            richTextBoxStats = new RichTextBox();
+            labelStats = new Label();
+            checkBoxRenderSlowly = new CheckBox();
+            groupBoxMode7Controls.SuspendLayout();
             SuspendLayout();
             // 
-            // timerTick
+            // timerTickScreen
             // 
-            timerTick.Enabled = true;
-            timerTick.Interval = 13;
-            timerTick.Tick += timerTick_Tick;
+            timerTickScreen.Enabled = true;
+            timerTickScreen.Interval = 13;
+            timerTickScreen.Tick += timerTick_Tick;
             // 
             // textBoxXStretch
             // 
-            textBoxXStretch.Location = new Point(350, 28);
+            textBoxXStretch.Location = new Point(6, 37);
             textBoxXStretch.Name = "textBoxXStretch";
             textBoxXStretch.Size = new Size(100, 23);
             textBoxXStretch.TabIndex = 0;
@@ -61,7 +66,7 @@
             // 
             // textBoxXAxis
             // 
-            textBoxXAxis.Location = new Point(350, 101);
+            textBoxXAxis.Location = new Point(6, 110);
             textBoxXAxis.Name = "textBoxXAxis";
             textBoxXAxis.Size = new Size(100, 23);
             textBoxXAxis.TabIndex = 1;
@@ -70,7 +75,7 @@
             // 
             // textBoxYAxis
             // 
-            textBoxYAxis.Location = new Point(350, 130);
+            textBoxYAxis.Location = new Point(6, 139);
             textBoxYAxis.Name = "textBoxYAxis";
             textBoxYAxis.Size = new Size(100, 23);
             textBoxYAxis.TabIndex = 3;
@@ -79,7 +84,7 @@
             // 
             // textBoxYStretch
             // 
-            textBoxYStretch.Location = new Point(350, 57);
+            textBoxYStretch.Location = new Point(6, 66);
             textBoxYStretch.Name = "textBoxYStretch";
             textBoxYStretch.Size = new Size(100, 23);
             textBoxYStretch.TabIndex = 2;
@@ -88,7 +93,7 @@
             // 
             // textBoxYShift
             // 
-            textBoxYShift.Location = new Point(484, 57);
+            textBoxYShift.Location = new Point(140, 66);
             textBoxYShift.Name = "textBoxYShift";
             textBoxYShift.Size = new Size(100, 23);
             textBoxYShift.TabIndex = 5;
@@ -97,7 +102,7 @@
             // 
             // textBoxXShift
             // 
-            textBoxXShift.Location = new Point(484, 28);
+            textBoxXShift.Location = new Point(140, 37);
             textBoxXShift.Name = "textBoxXShift";
             textBoxXShift.Size = new Size(100, 23);
             textBoxXShift.TabIndex = 4;
@@ -107,7 +112,7 @@
             // labelSkewing
             // 
             labelSkewing.AutoSize = true;
-            labelSkewing.Location = new Point(350, 83);
+            labelSkewing.Location = new Point(6, 92);
             labelSkewing.Name = "labelSkewing";
             labelSkewing.Size = new Size(51, 15);
             labelSkewing.TabIndex = 6;
@@ -116,7 +121,7 @@
             // labelScaling
             // 
             labelScaling.AutoSize = true;
-            labelScaling.Location = new Point(350, 10);
+            labelScaling.Location = new Point(6, 19);
             labelScaling.Name = "labelScaling";
             labelScaling.Size = new Size(45, 15);
             labelScaling.TabIndex = 7;
@@ -125,7 +130,7 @@
             // labelShift
             // 
             labelShift.AutoSize = true;
-            labelShift.Location = new Point(484, 10);
+            labelShift.Location = new Point(140, 19);
             labelShift.Name = "labelShift";
             labelShift.Size = new Size(68, 15);
             labelShift.TabIndex = 8;
@@ -134,7 +139,7 @@
             // labelShiftAfter
             // 
             labelShiftAfter.AutoSize = true;
-            labelShiftAfter.Location = new Point(484, 83);
+            labelShiftAfter.Location = new Point(140, 92);
             labelShiftAfter.Name = "labelShiftAfter";
             labelShiftAfter.Size = new Size(60, 15);
             labelShiftAfter.TabIndex = 11;
@@ -142,7 +147,7 @@
             // 
             // textBoxShiftY
             // 
-            textBoxShiftY.Location = new Point(484, 130);
+            textBoxShiftY.Location = new Point(140, 139);
             textBoxShiftY.Name = "textBoxShiftY";
             textBoxShiftY.Size = new Size(100, 23);
             textBoxShiftY.TabIndex = 10;
@@ -151,41 +156,89 @@
             // 
             // textBoxShiftX
             // 
-            textBoxShiftX.Location = new Point(484, 101);
+            textBoxShiftX.Location = new Point(140, 110);
             textBoxShiftX.Name = "textBoxShiftX";
             textBoxShiftX.Size = new Size(100, 23);
             textBoxShiftX.TabIndex = 9;
             textBoxShiftX.Text = "0";
             textBoxShiftX.TextChanged += textBoxShiftX_TextChanged;
             // 
+            // groupBoxMode7Controls
+            // 
+            groupBoxMode7Controls.Controls.Add(labelScaling);
+            groupBoxMode7Controls.Controls.Add(labelShiftAfter);
+            groupBoxMode7Controls.Controls.Add(textBoxXStretch);
+            groupBoxMode7Controls.Controls.Add(textBoxShiftY);
+            groupBoxMode7Controls.Controls.Add(textBoxXAxis);
+            groupBoxMode7Controls.Controls.Add(textBoxShiftX);
+            groupBoxMode7Controls.Controls.Add(textBoxYStretch);
+            groupBoxMode7Controls.Controls.Add(labelShift);
+            groupBoxMode7Controls.Controls.Add(textBoxYAxis);
+            groupBoxMode7Controls.Controls.Add(textBoxXShift);
+            groupBoxMode7Controls.Controls.Add(labelSkewing);
+            groupBoxMode7Controls.Controls.Add(textBoxYShift);
+            groupBoxMode7Controls.Location = new Point(691, 12);
+            groupBoxMode7Controls.Name = "groupBoxMode7Controls";
+            groupBoxMode7Controls.Size = new Size(253, 181);
+            groupBoxMode7Controls.TabIndex = 12;
+            groupBoxMode7Controls.TabStop = false;
+            groupBoxMode7Controls.Text = "Mode 7 Controls";
+            // 
+            // richTextBoxStats
+            // 
+            richTextBoxStats.BackColor = SystemColors.Window;
+            richTextBoxStats.Location = new Point(691, 215);
+            richTextBoxStats.Name = "richTextBoxStats";
+            richTextBoxStats.ReadOnly = true;
+            richTextBoxStats.Size = new Size(253, 108);
+            richTextBoxStats.TabIndex = 13;
+            richTextBoxStats.Text = "512x424 screen\n(Only Renders at a 16th of that for performance)";
+            // 
+            // labelStats
+            // 
+            labelStats.AutoSize = true;
+            labelStats.Location = new Point(691, 197);
+            labelStats.Name = "labelStats";
+            labelStats.Size = new Size(32, 15);
+            labelStats.TabIndex = 14;
+            labelStats.Text = "Stats";
+            // 
+            // checkBoxRenderSlowly
+            // 
+            checkBoxRenderSlowly.AutoSize = true;
+            checkBoxRenderSlowly.Checked = true;
+            checkBoxRenderSlowly.CheckState = CheckState.Checked;
+            checkBoxRenderSlowly.Location = new Point(691, 329);
+            checkBoxRenderSlowly.Name = "checkBoxRenderSlowly";
+            checkBoxRenderSlowly.Size = new Size(100, 19);
+            checkBoxRenderSlowly.TabIndex = 15;
+            checkBoxRenderSlowly.Text = "Render Slowly";
+            checkBoxRenderSlowly.UseVisualStyleBackColor = true;
+            checkBoxRenderSlowly.CheckedChanged += checkBoxRenderSlowly_CheckedChanged;
+            // 
             // FormMode7
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(853, 463);
-            Controls.Add(labelShiftAfter);
-            Controls.Add(textBoxShiftY);
-            Controls.Add(textBoxShiftX);
-            Controls.Add(labelShift);
-            Controls.Add(labelScaling);
-            Controls.Add(labelSkewing);
-            Controls.Add(textBoxYShift);
-            Controls.Add(textBoxXShift);
-            Controls.Add(textBoxYAxis);
-            Controls.Add(textBoxYStretch);
-            Controls.Add(textBoxXAxis);
-            Controls.Add(textBoxXStretch);
+            BackColor = SystemColors.Menu;
+            ClientSize = new Size(1009, 609);
+            Controls.Add(checkBoxRenderSlowly);
+            Controls.Add(labelStats);
+            Controls.Add(richTextBoxStats);
+            Controls.Add(groupBoxMode7Controls);
             DoubleBuffered = true;
             Name = "FormMode7";
             Text = "Mode 7";
             Paint += FormMode7_Paint;
+            groupBoxMode7Controls.ResumeLayout(false);
+            groupBoxMode7Controls.PerformLayout();
             ResumeLayout(false);
             PerformLayout();
         }
 
         #endregion
 
-        private System.Windows.Forms.Timer timerTick;
+        private System.Windows.Forms.Timer timerTickScreen;
         private TextBox textBoxXStretch;
         private TextBox textBoxXAxis;
         private TextBox textBoxYAxis;
@@ -198,5 +251,9 @@
         private Label labelShiftAfter;
         private TextBox textBoxShiftY;
         private TextBox textBoxShiftX;
+        private GroupBox groupBoxMode7Controls;
+        private RichTextBox richTextBoxStats;
+        private Label labelStats;
+        private CheckBox checkBoxRenderSlowly;
     }
 }

@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormMode7));
             timerTickScreen = new System.Windows.Forms.Timer(components);
             textBoxXStretch = new TextBox();
             textBoxXAxis = new TextBox();
@@ -46,6 +47,11 @@
             richTextBoxStats = new RichTextBox();
             labelStats = new Label();
             checkBoxRenderSlowly = new CheckBox();
+            richTextBoxCode = new RichTextBox();
+            labelInstructions = new Label();
+            labelInstructionDocumentation = new Label();
+            richTextBoxInstructionDocumentation = new RichTextBox();
+            textBoxError = new TextBox();
             groupBoxMode7Controls.SuspendLayout();
             SuspendLayout();
             // 
@@ -192,7 +198,7 @@
             richTextBoxStats.ReadOnly = true;
             richTextBoxStats.Size = new Size(253, 108);
             richTextBoxStats.TabIndex = 13;
-            richTextBoxStats.Text = "512x424 screen\n(Only Renders at a 16th of that for performance)";
+            richTextBoxStats.Text = "512x424 screen\n(Only Renders at a 16th of that for performance)\n\nThe instructions are run every frame";
             // 
             // labelStats
             // 
@@ -216,12 +222,59 @@
             checkBoxRenderSlowly.UseVisualStyleBackColor = true;
             checkBoxRenderSlowly.CheckedChanged += checkBoxRenderSlowly_CheckedChanged;
             // 
+            // richTextBoxCode
+            // 
+            richTextBoxCode.Location = new Point(950, 31);
+            richTextBoxCode.Name = "richTextBoxCode";
+            richTextBoxCode.Size = new Size(271, 437);
+            richTextBoxCode.TabIndex = 16;
+            richTextBoxCode.Text = "";
+            // 
+            // labelInstructions
+            // 
+            labelInstructions.AutoSize = true;
+            labelInstructions.Location = new Point(950, 9);
+            labelInstructions.Name = "labelInstructions";
+            labelInstructions.Size = new Size(69, 15);
+            labelInstructions.TabIndex = 17;
+            labelInstructions.Text = "Instructions";
+            // 
+            // labelInstructionDocumentation
+            // 
+            labelInstructionDocumentation.AutoSize = true;
+            labelInstructionDocumentation.Location = new Point(1232, 9);
+            labelInstructionDocumentation.Name = "labelInstructionDocumentation";
+            labelInstructionDocumentation.Size = new Size(150, 15);
+            labelInstructionDocumentation.TabIndex = 19;
+            labelInstructionDocumentation.Text = "Instruction Documentation";
+            // 
+            // richTextBoxInstructionDocumentation
+            // 
+            richTextBoxInstructionDocumentation.Location = new Point(1232, 31);
+            richTextBoxInstructionDocumentation.Name = "richTextBoxInstructionDocumentation";
+            richTextBoxInstructionDocumentation.ReadOnly = true;
+            richTextBoxInstructionDocumentation.Size = new Size(427, 437);
+            richTextBoxInstructionDocumentation.TabIndex = 18;
+            richTextBoxInstructionDocumentation.Text = resources.GetString("richTextBoxInstructionDocumentation.Text");
+            // 
+            // textBoxError
+            // 
+            textBoxError.Location = new Point(950, 474);
+            textBoxError.Name = "textBoxError";
+            textBoxError.Size = new Size(100, 23);
+            textBoxError.TabIndex = 20;
+            // 
             // FormMode7
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = SystemColors.Menu;
-            ClientSize = new Size(1009, 609);
+            ClientSize = new Size(1711, 613);
+            Controls.Add(textBoxError);
+            Controls.Add(labelInstructionDocumentation);
+            Controls.Add(richTextBoxInstructionDocumentation);
+            Controls.Add(labelInstructions);
+            Controls.Add(richTextBoxCode);
             Controls.Add(checkBoxRenderSlowly);
             Controls.Add(labelStats);
             Controls.Add(richTextBoxStats);
@@ -255,5 +308,10 @@
         private RichTextBox richTextBoxStats;
         private Label labelStats;
         private CheckBox checkBoxRenderSlowly;
+        private RichTextBox richTextBoxCode;
+        private Label labelInstructions;
+        private Label labelInstructionDocumentation;
+        private RichTextBox richTextBoxInstructionDocumentation;
+        private TextBox textBoxError;
     }
 }

@@ -1,3 +1,4 @@
+using System.Drawing;
 using System.Runtime.CompilerServices;
 
 namespace _mode_7
@@ -12,6 +13,9 @@ namespace _mode_7
         bool renderSlowly = true;
         int slowX = 0;
         int slowY = 0;
+        int instructionPointer = 0;
+        int waitingTicks = 0;
+        bool render = true;
         public FormMode7()
         {
             InitializeComponent();
@@ -33,9 +37,9 @@ namespace _mode_7
 
         private void FormMode7_Paint(object sender, PaintEventArgs e)
         {
-            SolidBrush brush = new SolidBrush(Color.White);
             if (renderSlowly)
             {
+                textBoxError.Text = "";
                 if (slowY >= 480)
                 {
                     slowY = 0;
@@ -46,6 +50,8 @@ namespace _mode_7
                     slowX = 0;
                     slowY += 1;
                 }
+                instructionPointer = 0;
+                string[] code = richTextBoxCode.Text.Split('\n');
                 // renders set of horizontal scan lines
                 if (slowY > 0)
                 {
@@ -53,94 +59,74 @@ namespace _mode_7
                     {
                         for (int x = 0; x < 640 / 4.0; x++)
                         {
-                            int x0 = xt + ((x - h) * a + (y - v) * c) + x;
-                            int y0 = yt + ((y - v) * b + (x - h) * d) + y;
-                            if (x0 < 0 || x0 > width - 1)
-                            {
-                                brush.Color = Color.FromArgb(200, 200, 200);
-                                e.Graphics.FillRectangle(brush, x * 4, y * 4, 4, 4);
-                            }
-                            else if (y0 < 0 || y0 > height - 1)
-                            {
-                                brush.Color = Color.FromArgb(200, 200, 200);
-                                e.Graphics.FillRectangle(brush, x * 4, y * 4, 4, 4);
-                            }
-                            else
-                            {
-                                brush.Color = colors[x0, y0];
-                                e.Graphics.FillRectangle(brush, x * 4, y * 4, 4, 4);
-                            }
-                            if (x > 512 / 4 || y > 424 / 4) // displays blackened border
-                            {
-                                brush.Color = Color.FromArgb(127, 0, 0, 0);
-                                e.Graphics.FillRectangle(brush, x * 4, y * 4, 4, 4);
-                            }
+                            Tick(x, y, code, e);
                         }
                     }
                 }
                 // renders final scan line
                 for (int x = 0; x < slowX / 4; x++)
                 {
-                    int x0 = xt + ((x - h) * a + (slowY - v) * c) + x;
-                    int y0 = yt + ((slowY - v) * b + (x - h) * d) + slowY;
-                    if (x0 < 0 || x0 > width - 1)
-                    {
-                        brush.Color = Color.FromArgb(200, 200, 200);
-                        e.Graphics.FillRectangle(brush, x * 4, slowY * 4, 4, 4);
-                    }
-                    else if (y0 < 0 || y0 > height - 1)
-                    {
-                        brush.Color = Color.FromArgb(200, 200, 200);
-                        e.Graphics.FillRectangle(brush, x * 4, slowY * 4, 4, 4);
-                    }
-                    else
-                    {
-                        brush.Color = colors[x0, y0];
-                        e.Graphics.FillRectangle(brush, x * 4, slowY * 4, 4, 4);
-                    }
-                    if (x > 512 / 4 || slowY > 424 / 4) // displays blackened border
-                    {
-                        brush.Color = Color.FromArgb(127, 0, 0, 0);
-                        e.Graphics.FillRectangle(brush, x * 4, slowY * 4, 4, 4);
-                    }
+                    Tick(x, slowY, code, e);
                 }
                 slowX += 4;
             }
             else
             {
+                textBoxError.Text = "";
                 // paints the form quickly
                 e.Graphics.Clear(Color.White);
+                instructionPointer = 0;
+                string[] code = richTextBoxCode.Text.Split('\n');
                 for (int y = 0; y < 480 / 4; y++)
                 {
                     for (int x = 0; x < 640 / 4; x++)
                     {
-                        int x0 = xt + ((x - h) * a + (y - v) * c) + x;
-                        int y0 = yt + ((y - v) * b + (x - h) * d) + y;
-                        if (x0 < 0 || x0 > width - 1)
-                        {
-                            brush.Color = Color.FromArgb(200, 200, 200);
-                            e.Graphics.FillRectangle(brush, x * 4, y * 4, 4, 4);
-                        }
-                        else if (y0 < 0 || y0 > height - 1)
-                        {
-                            brush.Color = Color.FromArgb(200, 200, 200);
-                            e.Graphics.FillRectangle(brush, x * 4, y * 4, 4, 4);
-                        }
-                        else
-                        {
-                            brush.Color = colors[x0, y0];
-                            e.Graphics.FillRectangle(brush, x * 4, y * 4, 4, 4);
-                        }
-                        if (x > 512 / 4 || y > 424 / 4) // displays blackened border
-                        {
-                            brush.Color = Color.FromArgb(127, 0, 0, 0);
-                            e.Graphics.FillRectangle(brush, x * 4, y * 4, 4, 4);
-                        }
+                        Tick(x, y, code, e);
                     }
                 }
             }
         }
-
+        private void Tick(int x, int y, string[] code, PaintEventArgs e)
+        {
+            SolidBrush brush = new SolidBrush(Color.Black);
+            if (waitingTicks > 0)
+            {
+                waitingTicks--;
+            }
+            else
+            {
+                ProcessInstruction(instructionPointer, code);
+                instructionPointer++;
+            }
+            if (!render)
+            {
+                e.Graphics.FillRectangle(brush, x * 4, y * 4, 4, 4);
+                return;
+            }
+            int x0 = xt + ((x - h) * a + (y - v) * c) + x;
+            int y0 = yt + ((y - v) * b + (x - h) * d) + y;
+            if (x0 < 0 || x0 > width - 1)
+            {
+                brush.Color = Color.FromArgb(200, 200, 200);
+                e.Graphics.FillRectangle(brush, x * 4, y * 4, 4, 4);
+            }
+            else if (y0 < 0 || y0 > height - 1)
+            {
+                brush.Color = Color.FromArgb(200, 200, 200);
+                e.Graphics.FillRectangle(brush, x * 4, y * 4, 4, 4);
+            }
+            else
+            {
+                brush.Color = colors[x0, y0];
+                e.Graphics.FillRectangle(brush, x * 4, y * 4, 4, 4);
+            }
+            if (x > 512 / 4 || y > 424 / 4) // displays blackened border
+            {
+                brush.Color = Color.FromArgb(127, 0, 0, 0);
+                e.Graphics.FillRectangle(brush, x * 4, y * 4, 4, 4);
+            }
+            brush.Dispose();
+        }
         private void XStrechChanged(object sender, EventArgs e)
         {
             string text = textBoxXStretch.Text;
@@ -229,6 +215,77 @@ namespace _mode_7
             slowX = 0;
             slowY = 0;
             renderSlowly = checkBoxRenderSlowly.Checked;
+        }
+        private void CatchError(int call, int line, string[] code)
+        {
+            if (textBoxError.Text == "")
+            {
+                if (call == -1)
+                {
+                    // for now, it's okay. This error calls when there isn't an instruction read
+                }
+                else if (call == -2)
+                {
+                    textBoxError.Text = $"Unreadable instruction at line {line + 1} \"{code[line]}\"";
+                }
+                else if (call == -3)
+                {
+                    textBoxError.Text = $"Unexpected parameter value at line {line + 1} \"{code[line]}\"";
+                }
+            }
+        }
+        private int ProcessInstruction(int instructionIdx, string[] code)
+        {
+            if (instructionIdx >= code.Length)
+            {
+                CatchError(-1, instructionIdx, code);
+                return -1;
+            }
+            else
+            {
+                if (code[instructionIdx] == "turnoff")
+                {
+                    render = false;
+                    return 1;
+                }
+                else if (code[instructionIdx] == "turnon")
+                {
+                    render = true;
+                    return 2;
+                }
+                else if (code[instructionIdx].StartsWith("wait"))
+                {
+                    string[] parts = code[instructionIdx].Split(' ');
+                    if (parts[0] == "wait")
+                    {
+                        try
+                        {
+                            int t = int.Parse(parts[1]);
+                            waitingTicks = t;
+                            return 0;
+                        }
+                        catch
+                        {
+                            CatchError(-3, instructionIdx, code);
+                            return -3;
+                        }
+                    }
+                    else
+                    {
+                        CatchError(-2, instructionIdx, code);
+                        return -2;
+                    }
+                }
+                else if (code[instructionIdx] != "")
+                {
+                    CatchError(-2, instructionIdx, code);
+                    return -2;
+                }
+                else
+                {
+                    return 0;
+                }
+            }
         }
     }
 }

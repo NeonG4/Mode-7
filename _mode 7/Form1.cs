@@ -1,5 +1,6 @@
 using System.Drawing;
 using System.Runtime.CompilerServices;
+using System.Windows.Forms.VisualStyles;
 
 namespace _mode_7
 {
@@ -232,6 +233,14 @@ namespace _mode_7
                 {
                     textBoxError.Text = $"Unexpected parameter value at line {line + 1} \"{code[line]}\"";
                 }
+                else if (call == -3)
+                {
+                    textBoxError.Text = $"Unexpected parameter value at line {line + 1} \"{code[line]}\"";
+                }
+                else
+                {
+                    textBoxError.Text = $"Unexpected error of value \"{call}\", {line + 1}. \"{code[line]}\"";
+                }
             }
         }
         private int ProcessInstruction(int instructionIdx, string[] code)
@@ -274,6 +283,82 @@ namespace _mode_7
                     {
                         CatchError(-2, instructionIdx, code);
                         return -2;
+                    }
+                }
+                else if (code[instructionIdx].StartsWith("m7register"))
+                {
+                    if (code[instructionIdx].Length < 13)
+                    {
+                        CatchError(-4, instructionIdx, code);
+                        return -4;
+                    }
+                    char tmp = code[instructionIdx][10];
+                    string part = code[instructionIdx].Split(' ')[1];
+                    int value;
+                    try
+                    {
+                        value = int.Parse(part);
+                    }
+                    catch
+                    {
+                        CatchError(-3, instructionIdx, code);
+                        return -3;
+                    }
+                    switch (tmp)
+                    {
+                        case '0':
+                            {
+                                a = value;
+                                textBoxXStretch.Text = a.ToString();
+                                return 0;
+                            }
+                        case '1':
+                            {
+                                b = value;
+                                textBoxYStretch.Text = b.ToString();
+                                return 0;
+                            }
+                        case '2':
+                            {
+                                c = value;
+                                textBoxXAxis.Text = c.ToString();
+                                return 0;
+                            }
+                        case '3':
+                            {
+                                d = value;
+                                textBoxYAxis.Text = d.ToString();
+                                return 0;
+                            }
+                        case '4':
+                            {
+                                xt = value;
+                                textBoxShiftX.Text = xt.ToString();
+                                return 0;
+                            }
+                        case '5':
+                            {
+                                yt = value;
+                                textBoxShiftX.Text = yt.ToString();
+                                return 0;
+                            }
+                        case '6':
+                            {
+                                h = value;
+                                textBoxXShift.Text = h.ToString();
+                                return 0;
+                            }
+                        case '7':
+                            {
+                                v = value;
+                                textBoxYShift.Text = v.ToString();
+                                return 0;
+                            }
+                        default:
+                            {
+                                CatchError(-2, instructionIdx, code);
+                                return -2;
+                            }
                     }
                 }
                 else if (code[instructionIdx] != "")

@@ -183,12 +183,13 @@
             groupBoxMode7Controls.Controls.Add(textBoxXShift);
             groupBoxMode7Controls.Controls.Add(labelSkewing);
             groupBoxMode7Controls.Controls.Add(textBoxYShift);
+            groupBoxMode7Controls.Enabled = false;
             groupBoxMode7Controls.Location = new Point(691, 12);
             groupBoxMode7Controls.Name = "groupBoxMode7Controls";
             groupBoxMode7Controls.Size = new Size(253, 181);
             groupBoxMode7Controls.TabIndex = 12;
             groupBoxMode7Controls.TabStop = false;
-            groupBoxMode7Controls.Text = "Mode 7 Controls";
+            groupBoxMode7Controls.Text = "Mode 7 Controls (disabled)";
             // 
             // richTextBoxStats
             // 
@@ -261,6 +262,7 @@
             // 
             textBoxError.Location = new Point(950, 474);
             textBoxError.Name = "textBoxError";
+            textBoxError.ReadOnly = true;
             textBoxError.Size = new Size(100, 23);
             textBoxError.TabIndex = 20;
             // 

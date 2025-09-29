@@ -68,7 +68,7 @@ namespace _mode_7
                     }
                     else if (tokens[tokenIdx].type == TokenType.Number)
                     {
-                        if ("0123456789".Contains(tokens[tokenIdx].key[parsingTokenSize]))
+                        if ("0123456789".Contains(function[i + 1]))
                         {
                             summedString += function[i];
                             parsingTokenSize++;

@@ -27,7 +27,7 @@ namespace _mode_7
         int slowY = 0;
 
         // compiling variables
-        byte[] compiledCode = new byte[65536];
+        byte[] compiledCode = new byte[307200]; // 640 * 480
 
         // operating variables
         int instructionPointer = 0;
@@ -66,9 +66,9 @@ namespace _mode_7
                     slowY += 1;
                 }
                 e.Graphics.Clear(Color.White);
-                instructionPointer = 0;
-                string[] code = richTextBoxCode.Text.Split('\n');
                 // renders set of horizontal scan lines
+                instructionPointer = 0;
+
                 if (slowY > 0)
                 {
                     for (int y = 0; y < slowY; y++)
@@ -92,7 +92,6 @@ namespace _mode_7
                 // paints the form quickly
                 e.Graphics.Clear(Color.White);
                 instructionPointer = 0;
-                string[] code = richTextBoxCode.Text.Split('\n');
                 for (int y = 0; y < 480 / 4; y++)
                 {
                     for (int x = 0; x < 640 / 4; x++)
@@ -105,6 +104,7 @@ namespace _mode_7
         private void Tick(int x, int y, PaintEventArgs e)
         {
             UpdateM7Reigsters();
+
             SolidBrush brush = new SolidBrush(Color.Black);
             if (waitingTicks > 0)
             {
@@ -247,6 +247,7 @@ namespace _mode_7
             slowX = 0;
             slowY = 0;
             renderSlowly = checkBoxRenderSlowly.Checked;
+            instructionPointer = 0;
         }
         private int ProcessInstruction(int instructionIdx)
         {
@@ -470,7 +471,7 @@ namespace _mode_7
                     }
                 }
             }
-            while (buffed < 65536)
+            while (buffed < compiledCode.Length)
             {
                 compiledCode[buffed] = 255;
                 buffed++;

@@ -51,6 +51,10 @@ namespace _mode_7
                         if (parsingTokenSize == tokens[tokenIdx].key.Length - 1)
                         {
                             summedString += function[i];
+                            if (tokens[tokenIdx].key != summedString)
+                            {
+                                return [];
+                            }
                             calculatedTokens.Add(summedString);
                             summedString = string.Empty;
                             parsingTokenSize = 0;
@@ -68,20 +72,29 @@ namespace _mode_7
                     }
                     else if (tokens[tokenIdx].type == TokenType.Number)
                     {
-                        if ("0123456789".Contains(function[i + 1]))
+                        if ("0123456789".Contains(function[i].ToString()))
+                        {
+                            summedString += function[i];
+                            parsingTokenSize++;
+                        }
+                        else if (function[i] == '-' && parsingTokenSize == 0)
                         {
                             summedString += function[i];
                             parsingTokenSize++;
                         }
                         else
                         {
-                            summedString += function[i];
                             calculatedTokens.Add(summedString);
                             summedString = string.Empty;
                             parsingTokenSize = 0;
                             tokenIdx++;
+                            i--; // by subtracting one, we can reread the character that wasn't a number
                         }
                     }
+                }
+                if (summedString != string.Empty)
+                {
+                    calculatedTokens.Add(summedString);
                 }
                 return calculatedTokens.ToArray();
             }

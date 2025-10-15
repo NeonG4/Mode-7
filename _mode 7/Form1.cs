@@ -104,6 +104,7 @@ namespace _mode_7
         }
         private void Tick(int x, int y, PaintEventArgs e)
         {
+            UpdateM7Reigsters();
             SolidBrush brush = new SolidBrush(Color.Black);
             if (waitingTicks > 0)
             {
@@ -144,6 +145,20 @@ namespace _mode_7
             }
             brush.Dispose();
         }
+        private void UpdateM7Reigsters()
+        {
+            textBoxXStretch.Text = a.ToString();
+            textBoxYStretch.Text = b.ToString();
+            textBoxXAxis.Text = c.ToString();
+            textBoxYAxis.Text = d.ToString();
+
+            textBoxShiftX.Text = v.ToString();
+            textBoxShiftY.Text = h.ToString();
+
+            textBoxXShift.Text = xt.ToString();
+            textBoxYShift.Text = yt.ToString();
+        }
+        // these events have been desynced from textbox updates
         private void XStrechChanged(object sender, EventArgs e)
         {
             string text = textBoxXStretch.Text;
@@ -326,6 +341,11 @@ namespace _mode_7
 
         private void richTextBoxCode_TextChanged(object sender, EventArgs e)
         {
+            buttonCompileCode.Enabled = true;
+        }
+        private void buttonCompileCode_Click(object sender, EventArgs e)
+        {
+            buttonCompileCode.Enabled = false;
             textBoxError.Text = string.Empty;
             richTextBoxCompiledCode.Text = string.Empty;
             // we want to compile the code

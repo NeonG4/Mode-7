@@ -54,6 +54,7 @@
             textBoxError = new TextBox();
             richTextBoxCompiledCode = new RichTextBox();
             labelCompiledInstructions = new Label();
+            buttonCompileCode = new Button();
             groupBoxMode7Controls.SuspendLayout();
             SuspendLayout();
             // 
@@ -70,7 +71,6 @@
             textBoxXStretch.Size = new Size(100, 23);
             textBoxXStretch.TabIndex = 0;
             textBoxXStretch.Text = "8";
-            textBoxXStretch.TextChanged += XStrechChanged;
             // 
             // textBoxXAxis
             // 
@@ -79,7 +79,6 @@
             textBoxXAxis.Size = new Size(100, 23);
             textBoxXAxis.TabIndex = 1;
             textBoxXAxis.Text = "0";
-            textBoxXAxis.TextChanged += XPos;
             // 
             // textBoxYAxis
             // 
@@ -88,7 +87,6 @@
             textBoxYAxis.Size = new Size(100, 23);
             textBoxYAxis.TabIndex = 3;
             textBoxYAxis.Text = "0";
-            textBoxYAxis.TextChanged += YPos;
             // 
             // textBoxYStretch
             // 
@@ -97,7 +95,6 @@
             textBoxYStretch.Size = new Size(100, 23);
             textBoxYStretch.TabIndex = 2;
             textBoxYStretch.Text = "8";
-            textBoxYStretch.TextChanged += YStrechChanged;
             // 
             // textBoxYShift
             // 
@@ -106,7 +103,6 @@
             textBoxYShift.Size = new Size(100, 23);
             textBoxYShift.TabIndex = 5;
             textBoxYShift.Text = "0";
-            textBoxYShift.TextChanged += YShift;
             // 
             // textBoxXShift
             // 
@@ -115,7 +111,6 @@
             textBoxXShift.Size = new Size(100, 23);
             textBoxXShift.TabIndex = 4;
             textBoxXShift.Text = "0";
-            textBoxXShift.TextChanged += XShift;
             // 
             // labelSkewing
             // 
@@ -160,7 +155,6 @@
             textBoxShiftY.Size = new Size(100, 23);
             textBoxShiftY.TabIndex = 10;
             textBoxShiftY.Text = "0";
-            textBoxShiftY.TextChanged += textBoxShiftY_TextChanged;
             // 
             // textBoxShiftX
             // 
@@ -169,7 +163,6 @@
             textBoxShiftX.Size = new Size(100, 23);
             textBoxShiftX.TabIndex = 9;
             textBoxShiftX.Text = "0";
-            textBoxShiftX.TextChanged += textBoxShiftX_TextChanged;
             // 
             // groupBoxMode7Controls
             // 
@@ -287,12 +280,23 @@
             labelCompiledInstructions.TabIndex = 22;
             labelCompiledInstructions.Text = "Compiled Instructions";
             // 
+            // buttonCompileCode
+            // 
+            buttonCompileCode.Location = new Point(950, 503);
+            buttonCompileCode.Name = "buttonCompileCode";
+            buttonCompileCode.Size = new Size(75, 23);
+            buttonCompileCode.TabIndex = 23;
+            buttonCompileCode.Text = "Compile Code";
+            buttonCompileCode.UseVisualStyleBackColor = true;
+            buttonCompileCode.Click += buttonCompileCode_Click;
+            // 
             // FormMode7
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = SystemColors.Menu;
             ClientSize = new Size(1711, 613);
+            Controls.Add(buttonCompileCode);
             Controls.Add(labelCompiledInstructions);
             Controls.Add(richTextBoxCompiledCode);
             Controls.Add(textBoxError);
@@ -340,5 +344,6 @@
         private TextBox textBoxError;
         private RichTextBox richTextBoxCompiledCode;
         private Label labelCompiledInstructions;
+        private Button buttonCompileCode;
     }
 }

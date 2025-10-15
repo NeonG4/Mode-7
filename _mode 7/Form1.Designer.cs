@@ -52,6 +52,8 @@
             labelInstructionDocumentation = new Label();
             richTextBoxInstructionDocumentation = new RichTextBox();
             textBoxError = new TextBox();
+            richTextBoxCompiledCode = new RichTextBox();
+            labelCompiledInstructions = new Label();
             groupBoxMode7Controls.SuspendLayout();
             SuspendLayout();
             // 
@@ -227,9 +229,10 @@
             // 
             richTextBoxCode.Location = new Point(950, 31);
             richTextBoxCode.Name = "richTextBoxCode";
-            richTextBoxCode.Size = new Size(271, 437);
+            richTextBoxCode.Size = new Size(133, 437);
             richTextBoxCode.TabIndex = 16;
-            richTextBoxCode.Text = "";
+            richTextBoxCode.Text = "turnon\nm7register0 16\nm7register1 -16\nm7register2 16\nm7register3 16\nm7register4 16\nm7register5 16\nm7register6 80\nm7register7 80";
+            richTextBoxCode.TextChanged += richTextBoxCode_TextChanged;
             // 
             // labelInstructions
             // 
@@ -263,8 +266,26 @@
             textBoxError.Location = new Point(950, 474);
             textBoxError.Name = "textBoxError";
             textBoxError.ReadOnly = true;
-            textBoxError.Size = new Size(100, 23);
+            textBoxError.Size = new Size(276, 23);
             textBoxError.TabIndex = 20;
+            // 
+            // richTextBoxCompiledCode
+            // 
+            richTextBoxCompiledCode.Location = new Point(1093, 31);
+            richTextBoxCompiledCode.Name = "richTextBoxCompiledCode";
+            richTextBoxCompiledCode.ReadOnly = true;
+            richTextBoxCompiledCode.Size = new Size(133, 437);
+            richTextBoxCompiledCode.TabIndex = 21;
+            richTextBoxCompiledCode.Text = "";
+            // 
+            // labelCompiledInstructions
+            // 
+            labelCompiledInstructions.AutoSize = true;
+            labelCompiledInstructions.Location = new Point(1093, 9);
+            labelCompiledInstructions.Name = "labelCompiledInstructions";
+            labelCompiledInstructions.Size = new Size(124, 15);
+            labelCompiledInstructions.TabIndex = 22;
+            labelCompiledInstructions.Text = "Compiled Instructions";
             // 
             // FormMode7
             // 
@@ -272,6 +293,8 @@
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = SystemColors.Menu;
             ClientSize = new Size(1711, 613);
+            Controls.Add(labelCompiledInstructions);
+            Controls.Add(richTextBoxCompiledCode);
             Controls.Add(textBoxError);
             Controls.Add(labelInstructionDocumentation);
             Controls.Add(richTextBoxInstructionDocumentation);
@@ -315,5 +338,7 @@
         private Label labelInstructionDocumentation;
         private RichTextBox richTextBoxInstructionDocumentation;
         private TextBox textBoxError;
+        private RichTextBox richTextBoxCompiledCode;
+        private Label labelCompiledInstructions;
     }
 }

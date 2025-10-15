@@ -123,8 +123,8 @@
   <data name="richTextBoxInstructionDocumentation.Text" xml:space="preserve">
     <value>opcode                   -- time -- explination
 turnoff                    -- 1       -- turns off the screen
-turnon                    -- 1      -- turns on the screen
-wait [t]                    -- 1      -- waits for t ticks before next instruction
-m7register[n] [v] -- 1        -- sets the mode 7 register [n] to [v]</value>
+turnon                    -- 1       -- turns on the screen
+wait [t]                    -- 1       -- waits for t ticks before next instruction
+m7register[n] [v]   -- 1        -- sets the mode 7 register [n] to [v]</value>
   </data>
 </root>

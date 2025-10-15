@@ -6,21 +6,36 @@ namespace _mode_7
 {
     public partial class FormMode7 : Form
     {
+        readonly static Token[] tokens = [
+            new Token([new SingleToken(TokenType.LiteralString, "turnoff")]),
+            new Token([new SingleToken(TokenType.LiteralString, "turnon")]),
+            new Token([new SingleToken(TokenType.LiteralString, "wait "), new SingleToken(TokenType.Number)]),
+            new Token([new SingleToken(TokenType.LiteralString, "m7register"), new SingleToken(TokenType.Number), new SingleToken(TokenType.LiteralCharacter, " "), new SingleToken(TokenType.Number)]),
+            ];
+
         public Color[,] colors = new Color[1024, 1024];
         int width = 1024, height = 1024;
-        int a = 8, b = 8, c = 0, d = 0; // params for x scale and y scale
+
+        // m7 variables
+        int a = 8, b = 8, c = 0, d = 0;
         int h = 0, v = 0;
         int xt = 0, yt = 0;
+
+        // rendering variables
         bool renderSlowly = true;
         int slowX = 0;
         int slowY = 0;
+
+        // compiling variables
+        byte[] compiledCode = new byte[65536];
+
+        // operating variables
         int instructionPointer = 0;
         int waitingTicks = 0;
         bool render = true;
         public FormMode7()
         {
             InitializeComponent();
-            Random rand = new Random();
             for (int i = 0; i < width; i++)
             {
                 for (int j = 0; j < height; j++)
@@ -40,7 +55,6 @@ namespace _mode_7
         {
             if (renderSlowly)
             {
-                textBoxError.Text = "";
                 if (slowY >= 480)
                 {
                     slowY = 0;
@@ -51,6 +65,7 @@ namespace _mode_7
                     slowX = 0;
                     slowY += 1;
                 }
+                e.Graphics.Clear(Color.White);
                 instructionPointer = 0;
                 string[] code = richTextBoxCode.Text.Split('\n');
                 // renders set of horizontal scan lines
@@ -60,20 +75,20 @@ namespace _mode_7
                     {
                         for (int x = 0; x < 640 / 4.0; x++)
                         {
-                            Tick(x, y, code, e);
+                            Tick(x, y, e);
                         }
                     }
                 }
                 // renders final scan line
                 for (int x = 0; x < slowX / 4; x++)
                 {
-                    Tick(x, slowY, code, e);
+                    Tick(x, slowY, e);
                 }
                 slowX += 4;
             }
             else
             {
-                textBoxError.Text = "";
+
                 // paints the form quickly
                 e.Graphics.Clear(Color.White);
                 instructionPointer = 0;
@@ -82,12 +97,12 @@ namespace _mode_7
                 {
                     for (int x = 0; x < 640 / 4; x++)
                     {
-                        Tick(x, y, code, e);
+                        Tick(x, y, e);
                     }
                 }
             }
         }
-        private void Tick(int x, int y, string[] code, PaintEventArgs e)
+        private void Tick(int x, int y, PaintEventArgs e)
         {
             SolidBrush brush = new SolidBrush(Color.Black);
             if (waitingTicks > 0)
@@ -96,14 +111,15 @@ namespace _mode_7
             }
             else
             {
-                ProcessInstruction(instructionPointer, code);
-                instructionPointer++;
+                ProcessInstruction(instructionPointer);
             }
             if (!render)
             {
                 e.Graphics.FillRectangle(brush, x * 4, y * 4, 4, 4);
                 return;
             }
+
+            // m7 transforms
             int x0 = xt + ((x - h) * a + (y - v) * c) + x;
             int y0 = yt + ((y - v) * b + (x - h) * d) + y;
             if (x0 < 0 || x0 > width - 1)
@@ -217,159 +233,227 @@ namespace _mode_7
             slowY = 0;
             renderSlowly = checkBoxRenderSlowly.Checked;
         }
-        private void CatchError(int call, int line, string[] code)
+        private int ProcessInstruction(int instructionIdx)
         {
-            if (textBoxError.Text == "")
+            switch (compiledCode[instructionIdx])
             {
-                if (call == -1)
-                {
-                    // for now, it's okay. This error calls when there isn't an instruction read
-                }
-                else if (call == -2)
-                {
-                    textBoxError.Text = $"Unreadable instruction at line {line + 1} \"{code[line]}\"";
-                }
-                else if (call == -3)
-                {
-                    textBoxError.Text = $"Unexpected parameter value at line {line + 1} \"{code[line]}\"";
-                }
-                else if (call == -3)
-                {
-                    textBoxError.Text = $"Unexpected parameter value at line {line + 1} \"{code[line]}\"";
-                }
-                else
-                {
-                    textBoxError.Text = $"Unexpected error of value \"{call}\", {line + 1}. \"{code[line]}\"";
-                }
+                case 255:
+                    {
+                        instructionPointer++;
+                        return 0;
+                    }
+                case 0:
+                    {
+                        render = false;
+                        instructionPointer++;
+                        return 0;
+                    }
+                case 1:
+                    {
+                        render = true;
+                        instructionPointer++;
+                        return 0;
+                    }
+                case 2:
+                    {
+                        waitingTicks = compiledCode[instructionIdx + 1];
+                        instructionPointer++;
+                        instructionPointer++;
+                        return 0;
+                    }
+                case 3:
+                    {
+                        byte register = compiledCode[instructionIdx + 1];
+                        int value = compiledCode[instructionIdx + 2] - 128;
+                        instructionPointer++;
+                        instructionPointer++;
+                        instructionPointer++;
+                        switch (register)
+                        {
+                            case 0:
+                                {
+                                    a = value;
+                                    return 0;
+                                }
+                            case 1:
+                                {
+                                    b = value;
+                                    return 0;
+                                }
+                            case 2:
+                                {
+                                    c = value;
+                                    return 0;
+                                }
+                            case 3:
+                                {
+                                    d = value;
+                                    return 0;
+                                }
+                            case 4:
+                                {
+                                    xt = value;
+                                    return 0;
+                                }
+                            case 5:
+                                {
+                                    yt = value;
+                                    return 0;
+                                }
+                            case 6:
+                                {
+                                    h = value;
+                                    return 0;
+                                }
+                            case 7:
+                                {
+                                    v = value;
+                                    return 0;
+                                }
+                            default:
+                                {
+                                    return -1;
+                                }
+                        }
+                    }
+                default:
+                    {
+                        instructionPointer++;
+                        return -1;
+                    }
             }
         }
-        private int ProcessInstruction(int instructionIdx, string[] code)
+
+        private void richTextBoxCode_TextChanged(object sender, EventArgs e)
         {
-            if (instructionIdx >= code.Length)
+            textBoxError.Text = string.Empty;
+            richTextBoxCompiledCode.Text = string.Empty;
+            // we want to compile the code
+            // compiled instructions: 
+            // 000 - turn off the screen
+            // 001 - turn on the screen
+            // 002 - wait for a time
+            // 003 - set a m7 register
+
+            string[] code = richTextBoxCode.Text.Split('\n');
+            int buffed = 0;
+            for (int i = 0; i < code.Length; i++)
             {
-                CatchError(-1, instructionIdx, code);
-                return -1;
-            }
-            else
-            {
-                if (code[instructionIdx] == "turnoff")
+                for (int j = 0; j < tokens.Length; j++)
                 {
-                    render = false;
-                    return 1;
-                }
-                else if (code[instructionIdx] == "turnon")
-                {
-                    render = true;
-                    return 2;
-                }
-                else if (code[instructionIdx].StartsWith("wait"))
-                {
-                    string[] parts = code[instructionIdx].Split(' ');
-                    if (parts[0] == "wait")
-                    {
-                        try
-                        {
-                            int t = int.Parse(parts[1]);
-                            waitingTicks = t;
-                            return 0;
-                        }
-                        catch
-                        {
-                            CatchError(-3, instructionIdx, code);
-                            return -3;
-                        }
-                    }
-                    else
-                    {
-                        CatchError(-2, instructionIdx, code);
-                        return -2;
-                    }
-                }
-                else if (code[instructionIdx].StartsWith("m7register"))
-                {
-                    if (code[instructionIdx].Length < 13)
-                    {
-                        CatchError(-4, instructionIdx, code);
-                        return -4;
-                    }
-                    char tmp = code[instructionIdx][10];
-                    string part = code[instructionIdx].Split(' ')[1];
-                    int value;
                     try
                     {
-                        value = int.Parse(part);
+
+                        string[] parsed = tokens[j].Parse(code[i]);
+                        if (parsed.Length == 0)
+                        {
+                            if (textBoxError.Text == string.Empty)
+                            {
+                                if (j == tokens.Length - 1)
+                                {
+                                    textBoxError.Text = $"Unparsable Function \"{code[i]}\"";
+                                }
+                            }
+                            continue;
+                        }
+                        else if (parsed.Length == 1)
+                        {
+                            if (parsed[0] == "turnoff") // adding twice, make sure parser checks if literals are the same as provided
+                            {
+                                compiledCode[buffed] = 0;
+                                richTextBoxCompiledCode.Text += "000 ";
+                                buffed++;
+                                j = tokens.Length;
+                            }
+                            else if (parsed[0] == "turnon")
+                            {
+                                compiledCode[buffed] = 1;
+                                richTextBoxCompiledCode.Text += "001 ";
+                                buffed++;
+                                j = tokens.Length;
+                            }
+
+                        }
+                        else if (parsed.Length == 2)
+                        {
+                            if (parsed[0] == "wait ")
+                            {
+                                string tmp = parsed[1];
+                                if (int.Parse(tmp) > 255)
+                                {
+                                    textBoxError.Text = $"Compile Error: Unexpected Argument \"{tmp}\"";
+                                    continue;
+                                }
+                                compiledCode[buffed] = 2;
+                                richTextBoxCompiledCode.Text += "002 ";
+                                if (tmp.Length == 1)
+                                {
+                                    tmp = "00" + tmp;
+                                }
+                                else if (tmp.Length == 2)
+                                {
+                                    tmp = "0" + tmp;
+                                }
+                                richTextBoxCompiledCode.Text += tmp + " ";
+                                buffed++;
+                                compiledCode[buffed] = byte.Parse(tmp);
+                                buffed++;
+                                j = tokens.Length;
+                            }
+                        }
+                        else if (parsed.Length == 4)
+                        {
+                            if (parsed[0] == "m7register")
+                            {
+                                string tmp = parsed[1];
+                                if (byte.Parse(tmp) > 7)
+                                {
+                                    textBoxError.Text = $"Compile Error: Unexpected Argument \"{tmp}\", expected value between 0 and 7";
+                                    continue;
+                                }
+                                string tmp2 = parsed[3];
+                                if (int.Parse(tmp2) > 127 || int.Parse(tmp2) < -128)
+                                {
+                                    textBoxError.Text = $"Compile Error: Unexpected Argument \"{tmp2}\", expected value between -128 and 127";
+                                    continue;
+                                }
+                                compiledCode[buffed] = 3;
+                                richTextBoxCompiledCode.Text += "003 ";
+                                tmp = "00" + tmp;
+                                if (tmp2.Length == 1)
+                                {
+                                    tmp2 = "00" + tmp2;
+                                }
+                                else if (tmp2.Length == 2)
+                                {
+                                    tmp2 = "0" + tmp2;
+                                }
+                                richTextBoxCompiledCode.Text += tmp + " ";
+                                richTextBoxCompiledCode.Text += (int.Parse(tmp2) + 128) + " ";
+                                buffed++;
+                                compiledCode[buffed] = byte.Parse(tmp);
+                                buffed++;
+                                compiledCode[buffed] = byte.Parse((SByte.Parse(tmp2) + 128).ToString()); // super messy conversion
+                                buffed++;
+                                j = tokens.Length;
+                            }
+                        }
+                        else
+                        {
+                            textBoxError.Text = $"Compile Error: Unexpected Instruction \"{parsed[0]}\"";
+
+                        }
                     }
                     catch
                     {
-                        CatchError(-3, instructionIdx, code);
-                        return -3;
-                    }
-                    switch (tmp)
-                    {
-                        case '0':
-                            {
-                                a = value;
-                                textBoxXStretch.Text = a.ToString();
-                                return 0;
-                            }
-                        case '1':
-                            {
-                                b = value;
-                                textBoxYStretch.Text = b.ToString();
-                                return 0;
-                            }
-                        case '2':
-                            {
-                                c = value;
-                                textBoxXAxis.Text = c.ToString();
-                                return 0;
-                            }
-                        case '3':
-                            {
-                                d = value;
-                                textBoxYAxis.Text = d.ToString();
-                                return 0;
-                            }
-                        case '4':
-                            {
-                                xt = value;
-                                textBoxShiftX.Text = xt.ToString();
-                                return 0;
-                            }
-                        case '5':
-                            {
-                                yt = value;
-                                textBoxShiftX.Text = yt.ToString();
-                                return 0;
-                            }
-                        case '6':
-                            {
-                                h = value;
-                                textBoxXShift.Text = h.ToString();
-                                return 0;
-                            }
-                        case '7':
-                            {
-                                v = value;
-                                textBoxYShift.Text = v.ToString();
-                                return 0;
-                            }
-                        default:
-                            {
-                                CatchError(-2, instructionIdx, code);
-                                return -2;
-                            }
+                        textBoxError.Text = $"Unexpected Error, line {i}";
                     }
                 }
-                else if (code[instructionIdx] != "")
-                {
-                    CatchError(-2, instructionIdx, code);
-                    return -2;
-                }
-                else
-                {
-                    return 0;
-                }
+            }
+            while (buffed < 65536)
+            {
+                compiledCode[buffed] = 255;
+                buffed++;
             }
         }
     }

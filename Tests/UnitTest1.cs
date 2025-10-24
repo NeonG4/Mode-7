@@ -50,8 +50,12 @@ namespace Tests
             expected.Add([]);
 
             tokens.Add(new Token([new SingleToken(TokenType.LiteralString, "Test for negative numbers (-5):"), new SingleToken(TokenType.Number)]));
-            inputs.Add("Test for negative numbers (-5):-5");
+            inputs.Add("Test for negative numbers (-5):25");
             expected.Add(["Test for negative numbers (-5):", "\n\n\n"]);
+
+            tokens.Add(new Token([new SingleToken(TokenType.LiteralString, "Random String test: ["), new SingleToken(TokenType.String, "]"), new SingleToken(TokenType.LiteralCharacter, "]")]));
+            inputs.Add("Random String test: [testString]");
+            expected.Add(["Random String test: [", "testString", "]"]);
         }
         [TestCase(0)]
         [TestCase(1)]
@@ -63,6 +67,7 @@ namespace Tests
         [TestCase(7)]
         [TestCase(8)]
         [TestCase(9)]
+        [TestCase(10)]
         public void TestParserMethod1(int indexOfTokenList)
         {
             string[] final = expected[indexOfTokenList];

@@ -55,6 +55,7 @@
             richTextBoxCompiledCode = new RichTextBox();
             labelCompiledInstructions = new Label();
             buttonCompileCode = new Button();
+            checkBoxRenderBounds = new CheckBox();
             groupBoxMode7Controls.SuspendLayout();
             SuspendLayout();
             // 
@@ -224,7 +225,7 @@
             richTextBoxCode.Name = "richTextBoxCode";
             richTextBoxCode.Size = new Size(133, 437);
             richTextBoxCode.TabIndex = 16;
-            richTextBoxCode.Text = "turnon\nm7register0 16\nm7register1 -16\nm7register2 16\nm7register3 16\nm7register4 16\nm7register5 16\nm7register6 80\nm7register7 80";
+            richTextBoxCode.Text = "turnoff\nwait 120\n[m7register0] = 0\n[m7register1] = 0\n[m7register2] = 16\n[m7register3] = 8\n[m7register4] = 32\n[m7register5] = 8\n[m7register6] = 8\n[m7register7] = 16\nturnon";
             richTextBoxCode.TextChanged += richTextBoxCode_TextChanged;
             // 
             // labelInstructions
@@ -290,12 +291,26 @@
             buttonCompileCode.UseVisualStyleBackColor = true;
             buttonCompileCode.Click += buttonCompileCode_Click;
             // 
+            // checkBoxRenderBounds
+            // 
+            checkBoxRenderBounds.AutoSize = true;
+            checkBoxRenderBounds.Checked = true;
+            checkBoxRenderBounds.CheckState = CheckState.Checked;
+            checkBoxRenderBounds.Location = new Point(691, 354);
+            checkBoxRenderBounds.Name = "checkBoxRenderBounds";
+            checkBoxRenderBounds.Size = new Size(106, 19);
+            checkBoxRenderBounds.TabIndex = 24;
+            checkBoxRenderBounds.Text = "Render Bounds";
+            checkBoxRenderBounds.UseVisualStyleBackColor = true;
+            checkBoxRenderBounds.CheckedChanged += checkBoxRenderBounds_CheckedChanged;
+            // 
             // FormMode7
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = SystemColors.Menu;
             ClientSize = new Size(1711, 613);
+            Controls.Add(checkBoxRenderBounds);
             Controls.Add(buttonCompileCode);
             Controls.Add(labelCompiledInstructions);
             Controls.Add(richTextBoxCompiledCode);
@@ -345,5 +360,6 @@
         private RichTextBox richTextBoxCompiledCode;
         private Label labelCompiledInstructions;
         private Button buttonCompileCode;
+        private CheckBox checkBoxRenderBounds;
     }
 }

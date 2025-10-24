@@ -91,6 +91,22 @@ namespace _mode_7
                             i--; // by subtracting one, we can reread the character that wasn't a number
                         }
                     }
+                    else if (tokens[tokenIdx].type == TokenType.String)
+                    {
+                        if (tokens[tokenIdx].key.Contains(function[i].ToString()))
+                        {
+                            calculatedTokens.Add(summedString);
+                            summedString = string.Empty;
+                            parsingTokenSize = 0;
+                            tokenIdx++;
+                            i--; // by subtracting one, we can reread the character that wasn't a number
+                        }
+                        else
+                        {
+                            summedString += function[i];
+                            parsingTokenSize++;
+                        }
+                    }
                 }
                 if (summedString != string.Empty)
                 {

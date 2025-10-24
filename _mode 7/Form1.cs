@@ -1,7 +1,9 @@
+using Microsoft.Win32;
 using System.Drawing;
 using System.Runtime.CompilerServices;
 using System.Windows.Forms.VisualStyles;
 
+// TODO: UPDATE REGISTER SET LOGIC, ADD [register] = n!!!
 namespace _mode_7
 {
     public partial class FormMode7 : Form
@@ -9,20 +11,47 @@ namespace _mode_7
         readonly static Token[] tokens = [
             new Token([new SingleToken(TokenType.LiteralString, "turnoff")]),
             new Token([new SingleToken(TokenType.LiteralString, "turnon")]),
-            new Token([new SingleToken(TokenType.LiteralString, "wait "), new SingleToken(TokenType.Number)]),
-            new Token([new SingleToken(TokenType.LiteralString, "m7register"), new SingleToken(TokenType.Number), new SingleToken(TokenType.LiteralCharacter, " "), new SingleToken(TokenType.Number)]),
+            // "wait n" where n is a number
+            new Token([
+                new SingleToken(TokenType.LiteralString, "wait "),
+                new SingleToken(TokenType.Number),]),
+            
+            // "wait [30]", or "wait [n]" where [n] is a register
+            new Token([
+                new SingleToken(TokenType.LiteralString, "wait ["),
+                new SingleToken(TokenType.String, "]"),
+                new SingleToken(TokenType.LiteralCharacter, "]")]),
+            // "[register] = [n]" set register to another register
+            new Token([
+                new SingleToken(TokenType.LiteralCharacter, "["),
+                new SingleToken(TokenType.String, "]"),
+                new SingleToken(TokenType.LiteralCharacter, "]"),
+                new SingleToken(TokenType.LiteralString, " = "),
+                new SingleToken(TokenType.LiteralCharacter, "["),
+                new SingleToken(TokenType.String, "]"),
+                new SingleToken(TokenType.LiteralCharacter, "]")
+                ]),
+            // "[register] = n" set register to a number
+            new Token([
+                new SingleToken(TokenType.LiteralCharacter, "["),
+                new SingleToken(TokenType.String, "]"),
+                new SingleToken(TokenType.LiteralCharacter, "]"),
+                new SingleToken(TokenType.LiteralString, " = "),
+                new SingleToken(TokenType.Number),
+                ]),
             ];
 
         public Color[,] colors = new Color[1024, 1024];
         int width = 1024, height = 1024;
 
-        // m7 variables
-        int a = 8, b = 8, c = 0, d = 0;
-        int h = 0, v = 0;
-        int xt = 0, yt = 0;
+
+        // registers
+        string[] registerNames = ["m7register0", "m7register1", "m7register2", "m7register3", "m7register4", "m7register5", "m7register6", "m7register7"];
+        int[] registerValues = [8, 8, 0, 0, 0, 0, 0, 0];
 
         // rendering variables
         bool renderSlowly = true;
+        bool renderBounds = true;
         int slowX = 0;
         int slowY = 0;
 
@@ -121,17 +150,20 @@ namespace _mode_7
             }
 
             // m7 transforms
-            int x0 = xt + ((x - h) * a + (y - v) * c) + x;
-            int y0 = yt + ((y - v) * b + (x - h) * d) + y;
+            // a-d 0, 1, 2, 3. h & v are 4 5, xt yt are 6 7
+            int x0 = registerValues[6] + ((x - registerValues[4]) * registerValues[0] + (y - registerValues[5]) * registerValues[2]) + x;
+            int y0 = registerValues[7] + ((y - registerValues[5]) * registerValues[1] + (x - registerValues[4]) * registerValues[3]) + y;
             if (x0 < 0 || x0 > width - 1)
             {
                 brush.Color = Color.FromArgb(200, 200, 200);
                 e.Graphics.FillRectangle(brush, x * 4, y * 4, 4, 4);
+                
             }
             else if (y0 < 0 || y0 > height - 1)
             {
                 brush.Color = Color.FromArgb(200, 200, 200);
                 e.Graphics.FillRectangle(brush, x * 4, y * 4, 4, 4);
+                
             }
             else
             {
@@ -140,23 +172,30 @@ namespace _mode_7
             }
             if (x > 512 / 4 || y > 424 / 4) // displays blackened border
             {
-                brush.Color = Color.FromArgb(127, 0, 0, 0);
+                if (renderBounds)
+                {
+                    brush.Color = Color.FromArgb(127, 0, 0, 0);
+                }
+                else
+                {
+                    brush.Color = Color.FromArgb(0, 0, 0);
+                }
                 e.Graphics.FillRectangle(brush, x * 4, y * 4, 4, 4);
             }
             brush.Dispose();
         }
         private void UpdateM7Reigsters()
         {
-            textBoxXStretch.Text = a.ToString();
-            textBoxYStretch.Text = b.ToString();
-            textBoxXAxis.Text = c.ToString();
-            textBoxYAxis.Text = d.ToString();
+            textBoxXStretch.Text = registerValues[0].ToString();
+            textBoxYStretch.Text = registerValues[1].ToString();
+            textBoxXAxis.Text = registerValues[2].ToString();
+            textBoxYAxis.Text = registerValues[3].ToString();
 
-            textBoxShiftX.Text = v.ToString();
-            textBoxShiftY.Text = h.ToString();
+            textBoxShiftX.Text = registerValues[4].ToString();
+            textBoxShiftY.Text = registerValues[5].ToString();
 
-            textBoxXShift.Text = xt.ToString();
-            textBoxYShift.Text = yt.ToString();
+            textBoxXShift.Text = registerValues[6].ToString();
+            textBoxYShift.Text = registerValues[7].ToString();
         }
         // these events have been desynced from textbox updates
         private void XStrechChanged(object sender, EventArgs e)
@@ -164,60 +203,60 @@ namespace _mode_7
             string text = textBoxXStretch.Text;
             if (string.IsNullOrEmpty(text))
             {
-                a = 0;
+                registerValues[registerNames.ToList<string>().IndexOf($"m7register0")] = 0;
                 return;
             }
-            a = int.Parse(text);
+            registerValues[registerNames.ToList<string>().IndexOf($"m7register0")] = int.Parse(text);
         }
         private void YStrechChanged(object sender, EventArgs e)
         {
             string text = textBoxYStretch.Text;
             if (string.IsNullOrEmpty(text))
             {
-                b = 0;
+                registerValues[registerNames.ToList<string>().IndexOf($"m7register1")] = 0;
                 return;
             }
-            b = int.Parse(text);
+            registerValues[registerNames.ToList<string>().IndexOf($"m7register1")] = int.Parse(text);
         }
         private void XPos(object sender, EventArgs e)
         {
             string text = textBoxXAxis.Text;
             if (string.IsNullOrEmpty(text))
             {
-                c = 0;
+                registerValues[registerNames.ToList<string>().IndexOf($"m7register2")] = 0;
                 return;
             }
-            c = int.Parse(text);
+            registerValues[registerNames.ToList<string>().IndexOf($"m7register2")] = int.Parse(text);
         }
         private void YPos(object sender, EventArgs e)
         {
             string text = textBoxYAxis.Text;
             if (string.IsNullOrEmpty(text))
             {
-                d = 0;
+                registerValues[registerNames.ToList<string>().IndexOf($"m7register3")] = 0;
                 return;
             }
-            d = int.Parse(text);
+            registerValues[registerNames.ToList<string>().IndexOf($"m7register3")] = int.Parse(text);
         }
         private void XShift(object sender, EventArgs e)
         {
             string text = textBoxXShift.Text;
             if (string.IsNullOrEmpty(text))
             {
-                h = 0;
+                registerValues[registerNames.ToList<string>().IndexOf($"m7register4")] = 0;
                 return;
             }
-            h = int.Parse(text);
+            registerValues[registerNames.ToList<string>().IndexOf($"m7register4")] = int.Parse(text);
         }
         private void YShift(object sender, EventArgs e)
         {
             string text = textBoxYShift.Text;
             if (string.IsNullOrEmpty(text))
             {
-                v = 0;
+                registerValues[registerNames.ToList<string>().IndexOf($"m7register5")] = 0;
                 return;
             }
-            v = int.Parse(text);
+            registerValues[registerNames.ToList<string>().IndexOf($"m7register5")] = int.Parse(text);
         }
 
         private void textBoxShiftX_TextChanged(object sender, EventArgs e)
@@ -225,10 +264,10 @@ namespace _mode_7
             string text = textBoxShiftX.Text;
             if (string.IsNullOrEmpty(text))
             {
-                xt = 0;
+                registerValues[registerNames.ToList<string>().IndexOf($"m7register6")] = 0;
                 return;
             }
-            xt = int.Parse(text);
+            registerValues[registerNames.ToList<string>().IndexOf($"m7register6")] = int.Parse(text);
         }
 
         private void textBoxShiftY_TextChanged(object sender, EventArgs e)
@@ -236,10 +275,10 @@ namespace _mode_7
             string text = textBoxShiftY.Text;
             if (string.IsNullOrEmpty(text))
             {
-                yt = 0;
+                registerValues[registerNames.ToList<string>().IndexOf($"m7register7")] = 0;
                 return;
             }
-            yt = int.Parse(text);
+            registerValues[registerNames.ToList<string>().IndexOf($"m7register7")] = int.Parse(text);
         }
 
         private void checkBoxRenderSlowly_CheckedChanged(object sender, EventArgs e)
@@ -279,58 +318,31 @@ namespace _mode_7
                     }
                 case 3:
                     {
-                        byte register = compiledCode[instructionIdx + 1];
-                        int value = compiledCode[instructionIdx + 2] - 128;
+                        waitingTicks = registerValues[compiledCode[instructionIdx + 1]];
+                        instructionPointer++;
+                        instructionPointer++;
+                        return 0;
+                    }
+                case 4:
+                    {
+                        int register = compiledCode[instructionIdx + 1];
+                        byte value = compiledCode[instructionIdx + 2];
+                        value -= 128;
+                        registerValues[register] = value;
                         instructionPointer++;
                         instructionPointer++;
                         instructionPointer++;
-                        switch (register)
-                        {
-                            case 0:
-                                {
-                                    a = value;
-                                    return 0;
-                                }
-                            case 1:
-                                {
-                                    b = value;
-                                    return 0;
-                                }
-                            case 2:
-                                {
-                                    c = value;
-                                    return 0;
-                                }
-                            case 3:
-                                {
-                                    d = value;
-                                    return 0;
-                                }
-                            case 4:
-                                {
-                                    xt = value;
-                                    return 0;
-                                }
-                            case 5:
-                                {
-                                    yt = value;
-                                    return 0;
-                                }
-                            case 6:
-                                {
-                                    h = value;
-                                    return 0;
-                                }
-                            case 7:
-                                {
-                                    v = value;
-                                    return 0;
-                                }
-                            default:
-                                {
-                                    return -1;
-                                }
-                        }
+                        return 0;
+                    }
+                case 5:
+                    {
+                        int register = compiledCode[instructionIdx + 1];
+                        int register2 = compiledCode[instructionIdx + 2];
+                        registerValues[register] = registerValues[register2];
+                        instructionPointer++;
+                        instructionPointer++;
+                        instructionPointer++;
+                        return 0;
                     }
                 default:
                     {
@@ -353,8 +365,10 @@ namespace _mode_7
             // compiled instructions: 
             // 000 - turn off the screen
             // 001 - turn on the screen
-            // 002 - wait for a time
-            // 003 - set a m7 register
+            // 002 - wait for a time (number)
+            // 003 - wait for a time (register)
+            // 004 - set a register to a number
+            // 005 - set a register to a register
 
             string[] code = richTextBoxCode.Text.Split('\n');
             int buffed = 0;
@@ -373,9 +387,9 @@ namespace _mode_7
                                 if (j == tokens.Length - 1)
                                 {
                                     textBoxError.Text = $"Unparsable Function \"{code[i]}\"";
+                                    return;
                                 }
                             }
-                            continue;
                         }
                         else if (parsed.Length == 1)
                         {
@@ -399,11 +413,11 @@ namespace _mode_7
                         {
                             if (parsed[0] == "wait ")
                             {
-                                string tmp = parsed[1];
+                                string tmp = parsed[1]; // could be a number, could be a register
                                 if (int.Parse(tmp) > 255)
                                 {
                                     textBoxError.Text = $"Compile Error: Unexpected Argument \"{tmp}\"";
-                                    continue;
+                                    return;
                                 }
                                 compiledCode[buffed] = 2;
                                 richTextBoxCompiledCode.Text += "002 ";
@@ -422,46 +436,112 @@ namespace _mode_7
                                 j = tokens.Length;
                             }
                         }
-                        else if (parsed.Length == 4)
+                        else if (parsed.Length == 3)
                         {
-                            if (parsed[0] == "m7register")
+                            if (parsed[0] == "wait [" && parsed[2] == "]")
                             {
-                                string tmp = parsed[1];
-                                if (byte.Parse(tmp) > 7)
-                                {
-                                    textBoxError.Text = $"Compile Error: Unexpected Argument \"{tmp}\", expected value between 0 and 7";
-                                    continue;
-                                }
-                                string tmp2 = parsed[3];
-                                if (int.Parse(tmp2) > 127 || int.Parse(tmp2) < -128)
-                                {
-                                    textBoxError.Text = $"Compile Error: Unexpected Argument \"{tmp2}\", expected value between -128 and 127";
-                                    continue;
-                                }
+                                string tmp = parsed[1]; // the number of the register
                                 compiledCode[buffed] = 3;
-                                richTextBoxCompiledCode.Text += "003 ";
-                                tmp = "00" + tmp;
-                                if (tmp2.Length == 1)
+                                richTextBoxCompiledCode.Text = "003 ";
+                                buffed++;
+                                if (tmp.Length == 1)
                                 {
-                                    tmp2 = "00" + tmp2;
+                                    tmp = "00" + tmp;
                                 }
-                                else if (tmp2.Length == 2)
+                                else if (tmp.Length == 2)
                                 {
-                                    tmp2 = "0" + tmp2;
+                                    tmp = "0" + tmp;
                                 }
-                                richTextBoxCompiledCode.Text += tmp + " ";
-                                richTextBoxCompiledCode.Text += (int.Parse(tmp2) + 128) + " ";
+                                richTextBoxCompiledCode.Text += tmp;
+                                int registerIndex = registerNames.ToList<string>().IndexOf(tmp);
+                                if (registerIndex == -1)
+                                {
+                                    textBoxError.Text = $"Compile Error: Unexpected Register \"{tmp}\"";
+                                    return;
+                                }
+                                compiledCode[buffed] = (byte)registerIndex;
                                 buffed++;
-                                compiledCode[buffed] = byte.Parse(tmp);
+                                j = tokens.Length;
+                            }
+                        }
+                        else if (parsed.Length == 5)
+                        {
+                            // write for assigning a register to a number
+                            if (parsed[0] == "[" && parsed[2] == "]" && parsed[3] == " = ")
+                            {
+                                // asignment of a register to a number
+                                int value = int.Parse(parsed[4]);
+                                int registerIndex = registerNames.ToList<string>().IndexOf(parsed[1]);
+                                if (registerIndex == -1)
+                                {
+                                    textBoxError.Text = $"Compile Error: Unexpected Register \"{parsed[1]}\"";
+                                    return;
+                                }
+                                if (value < -128 || value > 127)
+                                {
+                                    textBoxError.Text = $"Compile Error: Invalid Argument \"{value}\" out of range";
+                                    return;
+                                }
+                                richTextBoxCompiledCode.Text += "004 ";
+                                if (registerIndex.ToString().Length == 1)
+                                {
+                                    richTextBoxCompiledCode.Text += $"00{registerIndex} ";
+                                }
+                                else if (registerIndex.ToString().Length == 2)
+                                {
+                                    richTextBoxCompiledCode.Text += $"0{registerIndex} ";
+                                }
+                                if (value.ToString().Length == 1)
+                                {
+                                    richTextBoxCompiledCode.Text += $"00{value} ";
+                                }
+                                else if (value.ToString().Length == 2)
+                                {
+                                    richTextBoxCompiledCode.Text += $"0{value} ";
+                                }
+                                compiledCode[buffed] = 4;
                                 buffed++;
-                                compiledCode[buffed] = byte.Parse((SByte.Parse(tmp2) + 128).ToString()); // super messy conversion
+                                compiledCode[buffed] = (byte)registerIndex;
                                 buffed++;
+                                compiledCode[buffed] = (byte)(value + 128);
+                                buffed++;
+                                j = tokens.Length;
+                            }
+                        }
+                        else if (parsed.Length == 7)
+                        {
+                            // write for assigning a register to another register
+                            if (parsed[0] == "[" && parsed[2] == "]" && parsed[3] == " = " && parsed[4] == "[" && parsed[6] == "]")
+                            {
+                                int a = registerNames.ToList().IndexOf(parsed[2]);
+                                int b = registerNames.ToList().IndexOf(parsed[5]);
+                                if (a == -1)
+                                {
+                                    textBoxError.Text = $"Compile Error: invalid register \"{parsed[2]}\"";
+                                    return;
+                                }
+                                if (b == -1)
+                                {
+                                    textBoxError.Text = $"Compile Error: invalid register \"{parsed[5]}\"";
+                                    return;
+                                }
+                                compiledCode[buffed] = 5;
+                                buffed++;
+                                richTextBoxCompiledCode.Text += "005 ";
+
+                                compiledCode[buffed] = (byte)a;
+                                buffed++;
+                                compiledCode[buffed] = (byte)b;
+                                buffed++;
+                                richTextBoxCompiledCode.Text += a.ToString("D3");
+                                richTextBoxCompiledCode.Text += b.ToString("D3");
                                 j = tokens.Length;
                             }
                         }
                         else
                         {
                             textBoxError.Text = $"Compile Error: Unexpected Instruction \"{parsed[0]}\"";
+                            return;
 
                         }
                     }
@@ -476,6 +556,11 @@ namespace _mode_7
                 compiledCode[buffed] = 255;
                 buffed++;
             }
+        }
+
+        private void checkBoxRenderBounds_CheckedChanged(object sender, EventArgs e)
+        {
+            renderBounds = checkBoxRenderBounds.Checked;
         }
     }
 }

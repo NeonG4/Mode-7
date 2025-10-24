@@ -121,10 +121,13 @@
     <value>17, 17</value>
   </metadata>
   <data name="richTextBoxInstructionDocumentation.Text" xml:space="preserve">
-    <value>opcode                   -- time -- explination
-turnoff                    -- 1       -- turns off the screen
-turnon                    -- 1       -- turns on the screen
-wait [t]                    -- 1       -- waits for t ticks before next instruction
-m7register[n] [v]   -- 1        -- sets the mode 7 register [n] to [v]</value>
+    <value>opcode              -- time -- explination
+===============================
+turnoff               -- 1       -- turns off the screen
+turnon               -- 1       -- turns on the screen
+wait [t]               -- t       -- waits for [t] ticks before next instruction
+wait t                  -- t       -- waits for t ticks before next instruction
+[r] = [n]              -- 1       -- sets the register [r] to register [n] value
+[r] = n                 -- 1       -- sets the register [r] to register n value</value>
   </data>
 </root>
